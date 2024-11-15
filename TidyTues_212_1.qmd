@@ -1,0 +1,44 @@
+---
+title: "TidyTuesday_212_1"
+format: html
+---
+
+
+```{r}
+democracy_data <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2024/2024-11-05/democracy_data.csv')
+
+```
+```{r}
+library(dplyr)
+library(countrycode)
+
+democracy_data <- democracy_data %>%
+  mutate(continent = countrycode(country_name, origin = "country.name", destination = "continent"))
+
+democracy_data <- democracy_data %>% filter(year == 2020) %>% group_by(continent, has_free_and_fair_election) %>% summarise(country_count = n()) %>% ungroup()
+```
+
+
+```{r}
+library(ggplot2)
+
+ggplot(democracy_data, aes(x = has_free_and_fair_election, y = country_count, fill = has_free_and_fair_election)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ continent) +
+  labs(
+    title = "Number of Countries with Free and Fair Elections by Continent",
+    x = "Has Free and Fair Election",
+    y = "Number of Countries"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("TRUE" = "steelblue", "FALSE" = "tomato")) +  # Set distinct colors
+  theme(
+    legend.position = "top",  # Place legend at the top
+    strip.background = element_rect(fill = "gray90", color = "black"),  # Background for facet titles
+    strip.text = element_text(face = "bold"),  # Bold facet titles
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10),  # Rotate x-axis labels for better readability
+    axis.text.y = element_text(size = 10)
+  )
+
+```
+
